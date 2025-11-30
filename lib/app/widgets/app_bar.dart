@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/connect.dart';
-import 'package:tejas_portfolio/app/widgets/theme_toggle_button.dart';
-import 'package:tejas_portfolio/core/utils/responsive.dart';
-import 'package:tejas_portfolio/features/home/presentation/controllers/home_controller.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_text_styles.dart';
+import '../../core/utils/responsive.dart';
+import '../../features/home/presentation/controllers/home_controller.dart';
+import 'app_button.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   const MyAppBar({super.key});
@@ -11,90 +12,72 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final width = Responsive.screenWidth(context);
-    final themeController = Get.find<HomeController>();
-    final currentIndex = themeController.currentIndex.value;
+    final homeController = Get.find<HomeController>();
 
     return AppBar(
-      // elevation: 6,
-      // shadowColor: const Color.fromARGB(255, 65, 62, 62).withValues(),
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: AppColors.primary.withOpacity(0.9),
+      elevation: 0,
       titleSpacing: 0,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-
-        children: [
-          SizedBox(width: width * 0.2),
-
-          /// ICON
-          const Icon(Icons.construction, color: Colors.green, size: 24),
-          SizedBox(width: width * 0.01),
-
-          /// NAME
-          Text(
-            "Build with Tejas",
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-          ),
-        ],
+      title: Padding(
+        padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+        child: Row(
+          children: [
+            Text(
+              "< T / >",
+              style: AppTextStyles.headlineMedium.copyWith(
+                color: AppColors.accent,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
-
       actions: [
         Obx(() {
           return Row(
             children: [
               _NavItem(
                 title: "Home",
-                isActive: themeController.currentIndex.value == 0,
+                isActive: homeController.currentIndex.value == 0,
                 index: 0,
-                onTap: themeController.scrollToSection,
+                onTap: homeController.scrollToSection,
               ),
               _NavItem(
                 title: "Work",
-                isActive: themeController.currentIndex.value == 1,
+                isActive: homeController.currentIndex.value == 1,
                 index: 1,
-                onTap: themeController.scrollToSection,
+                onTap: homeController.scrollToSection,
               ),
               _NavItem(
                 title: "About",
-                isActive: themeController.currentIndex.value == 2,
+                isActive: homeController.currentIndex.value == 2,
                 index: 2,
-                onTap: themeController.scrollToSection,
+                onTap: homeController.scrollToSection,
+              ),
+              _NavItem(
+                title: "Contact",
+                isActive: homeController.currentIndex.value == 3,
+                index: 3,
+                onTap: homeController.scrollToSection,
               ),
             ],
           );
         }),
-
-        SizedBox(width: width * 0.01),
-
-        /// CONNECT BUTTON
+        const SizedBox(width: 20),
         Padding(
-          padding: const EdgeInsets.only(right: 20),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green.shade700,
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
-              ),
-            ),
-            onPressed: () {},
-            child: const Text("Connect", style: TextStyle(color: Colors.white)),
+          padding: EdgeInsets.only(right: width * 0.05),
+          child: AppButton(
+            title: "Resume",
+            isOutline: true,
+            onPressed: homeController.openResume,
           ),
-        ),
-        SizedBox(width: width * 0.2),
-
-        IconButton(
-          icon: Icon(Get.isDarkMode ? Icons.light_mode : Icons.dark_mode),
-          onPressed: themeController.toggleTheme,
-          tooltip: Get.isDarkMode ? 'Light Mode' : 'Dark Mode',
         ),
       ],
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(70);
 }
 
 class _NavItem extends StatelessWidget {
@@ -112,34 +95,28 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return InkWell(
-      onTap: () => onTap(index), // ⭐ scrolls to correct section
+      onTap: () => onTap(index),
+      hoverColor: Colors.transparent,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               title,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: isActive
-                    ? Colors.green.shade700
-                    : theme.colorScheme.onSurface,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: isActive ? AppColors.accent : AppColors.textPrimary,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
             const SizedBox(height: 4),
-            if (isActive)
-              Container(
-                height: 3,
-                width: 24,
-                decoration: BoxDecoration(
-                  color: Colors.green.shade700,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: 2,
+              width: isActive ? 20 : 0,
+              color: AppColors.accent,
+            ),
           ],
         ),
       ),

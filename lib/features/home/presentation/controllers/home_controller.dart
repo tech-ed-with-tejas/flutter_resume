@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+ import 'package:url_launcher/url_launcher.dart';
 
 
 class HomeController extends GetxController {
@@ -11,6 +12,7 @@ class HomeController extends GetxController {
     GlobalKey(), // Home
     GlobalKey(), // Work
     GlobalKey(), // About
+    GlobalKey(), // Contact
   ];
 
 
@@ -20,9 +22,17 @@ class HomeController extends GetxController {
     Get.changeThemeMode(Get.isDarkMode ? ThemeMode.light : ThemeMode.dark);
   }
 
-  void openResume() {
-    // open resume action
-  }
+  Future<void> openResume() async {
+     const url = 'assets/docs/resume.pdf'; // Correct path
+     // For web, we can just launch the asset URL relative to the domain
+     // However, typically assets are at assets/docs/resume.pdf
+     // Let's try opening it directly.
+     final uri = Uri.parse(url);
+     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+       // Fallback or error handling
+       debugPrint('Could not launch resume');
+     }
+   }
 
   void openProjects() {
     // navigate to projects

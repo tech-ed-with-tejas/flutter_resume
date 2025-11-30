@@ -11,16 +11,14 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeController = Get.put(ThemeController());
 
-    return Obx(
-      () => GetMaterialApp(
-        title: 'Tejas A',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: themeController.themeMode.value,
-        initialRoute: AppPages.initial,
-        getPages: AppPages.routes,
-      ),
+    return GetMaterialApp(
+      title: 'Tejas A',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.light, // Force Light Mode for Minimalist Theme
+      initialRoute: AppPages.initial,
+      getPages: AppPages.routes,
     );
   }
 }
