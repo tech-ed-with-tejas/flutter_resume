@@ -25,12 +25,12 @@ import 'package:flutter/material.dart';
        child: Column(
          crossAxisAlignment: CrossAxisAlignment.start,
          children: [
-           const SectionHeader(title: "Some Things I've Built", number: "01"),
+           const SectionHeader(title: "Things I've Built", number: "01"),
            const SizedBox(height: 40),
            if (isMobile)
              Column(
                children: kProjects
-                   .take(4)
+                   .take(3)
                    .map((project) => Padding(
                          padding: const EdgeInsets.only(bottom: 20),
                          child: ProjectCard(project: project),
@@ -43,11 +43,11 @@ import 'package:flutter/material.dart';
                physics: const NeverScrollableScrollPhysics(),
                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                  crossAxisCount: isTablet ? 2 : 3,
-                 childAspectRatio: 0.6,
+                 childAspectRatio: 1.1, // Increased to reduce height and white space
                  crossAxisSpacing: 20,
                  mainAxisSpacing: 20,
                ),
-               itemCount: kProjects.take(4).length,
+               itemCount: kProjects.take(3).length,
                itemBuilder: (context, index) {
                  return ProjectCard(project: kProjects[index]);
                },
@@ -55,7 +55,7 @@ import 'package:flutter/material.dart';
            const SizedBox(height: 60),
            Center(
              child: AppButton(
-               title: "View All Projects",
+               title: "Know More",
                onPressed: () => Get.toNamed(ProjectsView.route),
              ),
            ),

@@ -6,7 +6,8 @@ import 'package:tejas_portfolio/app/widgets/app_bar.dart';
 import 'package:tejas_portfolio/app/widgets/app_drawer_mobile.dart';
 import 'package:tejas_portfolio/app/widgets/first_box.dart';
  import '../widgets/hero_section.dart';
- import '../widgets/skills_section.dart'; // Added this import
+ import '../widgets/skills_section.dart';
+ import '../widgets/blog_section.dart';
  import '../widgets/work_section.dart';
  import '../widgets/about_section.dart';
  import '../widgets/contact_section.dart';
@@ -60,10 +61,16 @@ class HomeView extends GetView<HomeController> {
 
        // SECTION 2.5 — SKILLS
        const SkillsSection(),
- 
-       // SECTION 3 — CONTACT
+
+       // SECTION 3 — BLOG
        Container(
          key: controller.sectionKeys[3],
+         child: const BlogSection(),
+       ),
+ 
+       // SECTION 4 — CONTACT
+       Container(
+         key: controller.sectionKeys[4],
          child: const ContactSection(),
        ),
        ],// remove last spacer

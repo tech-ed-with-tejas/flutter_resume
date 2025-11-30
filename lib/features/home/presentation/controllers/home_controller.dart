@@ -12,6 +12,7 @@ class HomeController extends GetxController {
     GlobalKey(), // Home
     GlobalKey(), // Work
     GlobalKey(), // About
+    GlobalKey(), // Blog
     GlobalKey(), // Contact
   ];
 
@@ -22,14 +23,17 @@ class HomeController extends GetxController {
     Get.changeThemeMode(Get.isDarkMode ? ThemeMode.light : ThemeMode.dark);
   }
 
+  Future<void> _launchUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch $uri';
+    }
+  }
+
   Future<void> openResume() async {
-     const url = 'assets/docs/resume.pdf'; // Correct path
-     // For web, we can just launch the asset URL relative to the domain
-     // However, typically assets are at assets/docs/resume.pdf
-     // Let's try opening it directly.
-     final uri = Uri.parse(url);
+     const url = 'assets/docs/resume.pdf';
+     final Uri uri = Uri.parse(url);
      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-       // Fallback or error handling
        debugPrint('Could not launch resume');
      }
    }

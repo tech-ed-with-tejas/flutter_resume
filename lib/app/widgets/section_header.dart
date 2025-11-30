@@ -24,17 +24,19 @@ import 'package:flutter/material.dart';
            style: AppTextStyles.headlineMedium.copyWith(
              color: AppColors.accent,
              fontFamily: 'FiraCode', // Monospace look for numbers
-             fontSize: isMobile ? 20 : 24,
+             fontSize: isMobile ? 16 : 24, // Reduced mobile font
            ),
          ),
-         Text(
-           title,
-           style: AppTextStyles.headlineMedium.copyWith(
-             color: AppColors.textPrimary,
-             fontSize: isMobile ? 22 : 26,
+         Flexible(
+           child: Text(
+             title,
+             style: AppTextStyles.headlineMedium.copyWith(
+               color: AppColors.textPrimary,
+               fontSize: isMobile ? 20 : 26, // Reduced mobile font
+             ),
            ),
          ),
-         const SizedBox(width: 20),
+         SizedBox(width: isMobile ? 10 : 20), // Reduced mobile spacing
          Expanded(
            child: Container(
              height: 1,

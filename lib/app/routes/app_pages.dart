@@ -4,6 +4,7 @@ import '../../features/home/presentation/views/home_view.dart';
 import '../../features/home/presentation/controllers/home_binding.dart';
  import '../../features/projects/presentation/views/projects_view.dart';
  import '../../features/experience/presentation/views/experience_view.dart';
+ import '../../features/home/presentation/views/blogs_view.dart';
 
 class AppPages {
   AppPages._();
@@ -23,6 +24,10 @@ class AppPages {
     GetPage(
       name: ExperienceView.route,
       page: () => const ExperienceView(),
+    ),
+    GetPage(
+      name: BlogsView.route,
+      page: () => const BlogsView(),
     ),
   ];
 }

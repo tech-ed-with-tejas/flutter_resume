@@ -6,6 +6,8 @@ import '../../../../core/utils/responsive.dart';
 import '../../../home/domain/entities/project_model.dart';
 import '../../../home/presentation/widgets/project_card.dart';
  
+import 'package:tejas_portfolio/app/routes/app_routes.dart';
+
  class ProjectsView extends StatelessWidget {
    static const String route = '/projects';
  
@@ -22,7 +24,13 @@ import '../../../home/presentation/widgets/project_card.dart';
          title: Text("All Projects", style: AppTextStyles.headlineMedium),
          leading: IconButton(
            icon: const Icon(Icons.arrow_back),
-           onPressed: () => Get.back(),
+           onPressed: () {
+             if (Navigator.canPop(context)) {
+               Get.back();
+             } else {
+               Get.offAllNamed(Routes.HOME);
+             }
+           },
          ),
        ),
        body: SingleChildScrollView(
@@ -54,7 +62,7 @@ import '../../../home/presentation/widgets/project_card.dart';
                    physics: const NeverScrollableScrollPhysics(),
                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                      crossAxisCount: isTablet ? 2 : 3,
-                     childAspectRatio: 0.6,
+                     childAspectRatio: 1.1, // Increased to reduce height and white space
                      crossAxisSpacing: 20,
                      mainAxisSpacing: 20,
                    ),

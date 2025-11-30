@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui' as ui;
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/utils/responsive.dart';
@@ -43,6 +44,18 @@ final List<SkillCategory> kSkillCategories = [
     skills: ["LangChain", "LangGraph", "LangSmith", "Opik", "AutoGen", "ADK", "MCP", "RAG",
       "LLMOps",
       "OpenAI API"],
+  ),
+  SkillCategory(
+    title: "AI Tools",
+    value: 0.95,
+    skills: [
+      "Perplexity",
+      "Claude",
+      "Gemini",
+      "ChatGPT",
+      "Antigravity",
+      "Copilot"
+    ],
   ),
   SkillCategory(
     title: "Backend & Data",
@@ -95,40 +108,45 @@ class SkillsSection extends StatefulWidget {
 
 class _SkillsSectionState extends State<SkillsSection> {
   final ScrollController _scrollController = ScrollController();
-  late final Timer _timer;
+  Timer? _scrollTimer;
+  bool _isHovering = false;
+  bool _isUserScrolling = false;
 
   @override
   void initState() {
     super.initState();
-    // Start auto-scrolling
+    // Start auto-scrolling after build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startAutoScroll();
     });
   }
 
   void _startAutoScroll() {
-    Future.delayed(const Duration(milliseconds: 50), () {
-      if (_scrollController.hasClients) {
+    _stopAutoScroll(); // Ensure no duplicate timers
+    const duration = Duration(milliseconds: 50);
+    _scrollTimer = Timer.periodic(duration, (timer) {
+      if (_scrollController.hasClients && !_isHovering && !_isUserScrolling) {
         double maxScroll = _scrollController.position.maxScrollExtent;
         double currentScroll = _scrollController.offset;
-        double delta = 2; // Speed of scroll
+        double delta = 1.5; // Smooth speed
 
         if (currentScroll >= maxScroll) {
           _scrollController.jumpTo(0);
         } else {
-          _scrollController.animateTo(
-            currentScroll + delta,
-            duration: const Duration(milliseconds: 30),
-            curve: Curves.linear,
-          );
+          _scrollController.jumpTo(currentScroll + delta);
         }
-        _startAutoScroll(); // Recursive call for continuous loop
       }
     });
   }
 
+  void _stopAutoScroll() {
+    _scrollTimer?.cancel();
+    _scrollTimer = null;
+  }
+
   @override
   void dispose() {
+    _stopAutoScroll();
     _scrollController.dispose();
     super.dispose();
   }
@@ -149,7 +167,7 @@ class _SkillsSectionState extends State<SkillsSection> {
         children: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 0),
-            child: const SectionHeader(title: "My Expertise", number: "02"),
+            child: const SectionHeader(title: "My Expertise", number: "03"),
           ),
           const SizedBox(height: 60),
           
@@ -172,30 +190,59 @@ class _SkillsSectionState extends State<SkillsSection> {
 
           // 2. Skills Layout (Infinite Auto-Scrolling Carousel)
           SizedBox(
-            height: 360, 
-            child: ScrollConfiguration(
-              behavior: ScrollConfiguration.of(context).copyWith(
-                dragDevices: {
-                  // Enable mouse drag for web
-                  ui.PointerDeviceKind.touch,
-                  ui.PointerDeviceKind.mouse,
+            height: 500,
+            child: NotificationListener<UserScrollNotification>(
+              onNotification: (notification) {
+                if (notification.direction == ScrollDirection.idle) {
+                  _isUserScrolling = false;
+                  // Resume after a short delay
+                  Future.delayed(const Duration(seconds: 2), () {
+                    if (mounted && !_isUserScrolling && !_isHovering) {
+                      _startAutoScroll();
+                    }
+                  });
+                } else {
+                  _isUserScrolling = true;
+                  _stopAutoScroll();
+                }
+                return false;
+              },
+              child: MouseRegion(
+                onEnter: (_) {
+                  setState(() => _isHovering = true);
+                  _stopAutoScroll();
                 },
-              ),
-              child: ListView.separated(
-                controller: _scrollController,
-                padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : Responsive.screenWidth(context) * 0.1),
-                scrollDirection: Axis.horizontal,
-                // Infinite count
-                itemCount: kSkillCategories.length * 1000, 
-                separatorBuilder: (context, index) => const SizedBox(width: 30),
-                itemBuilder: (context, index) {
-                  // Modulo for infinite loop
-                  final category = kSkillCategories[index % kSkillCategories.length];
-                  return SizedBox(
-                    width: 320, 
-                    child: SkillCard(category: category),
-                  );
+                onExit: (_) {
+                  setState(() => _isHovering = false);
+                  _startAutoScroll();
                 },
+                child: ScrollConfiguration(
+                  behavior: ScrollConfiguration.of(context).copyWith(
+                    dragDevices: {
+                      ui.PointerDeviceKind.touch,
+                      ui.PointerDeviceKind.mouse,
+                    },
+                  ),
+                  child: ListView.separated(
+                    controller: _scrollController,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: isMobile
+                            ? 20
+                            : Responsive.screenWidth(context) * 0.1),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: kSkillCategories.length * 1000,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(width: 30),
+                    itemBuilder: (context, index) {
+                      final category =
+                          kSkillCategories[index % kSkillCategories.length];
+                      return SizedBox(
+                        width: 320,
+                        child: SkillCard(category: category),
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
           ),
@@ -213,55 +260,81 @@ class SkillCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: AppColors.primary, // Off-white card
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.secondary,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withOpacity(0.5), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          )
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: AppColors.accent.withOpacity(0.05),
+            blurRadius: 30,
+            offset: const Offset(0, 10),
+          ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            category.title,
-            style: AppTextStyles.headlineMedium.copyWith(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Container(
+                  height: 40,
+                  width: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.accent,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    category.title,
+                    style: AppTextStyles.headlineMedium.copyWith(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                      letterSpacing: -0.5,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: category.skills
-                .map((skill) => Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: AppColors.secondary, // White chips
-                        borderRadius: BorderRadius.circular(30), // Pill shape
-                        border: Border.all(
-                            color: AppColors.accent.withOpacity(0.1)),
-                      ),
-                      child: Text(
-                        skill,
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 13,
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w500,
+            const SizedBox(height: 24),
+            Wrap(
+              spacing: 10,
+              runSpacing: 12,
+              children: category.skills
+                  .map((skill) => Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                              color: AppColors.textSecondary.withOpacity(0.1)),
                         ),
-                      ),
-                    ))
-                .toList(),
-          ),
-        ],
+                        child: Text(
+                          skill,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 13,
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ))
+                  .toList(),
+            ),
+          ],
+        ),
       ),
     );
   }
